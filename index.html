@@ -247,7 +247,18 @@
 					});
 					// add to div
 					const qrDiv = document.getElementById("qrcode");
-					qrDiv.appendChild(qr);
+					qrDiv.innerHTML = "";
+					const canvas = document.createElement("canvas");
+					canvas.width = 200;
+					canvas.height = 200;
+					canvas.style.border = "1px solid #f8f9fa";
+					qrDiv.appendChild(canvas);
+					// create onclick to open new tab
+					canvas.addEventListener("click", () => {
+						window.open(
+							`https://plugins.whatsonchain.com/api/plugin/main/${txid}`
+						);
+					});
 				};
 
 				publishBtn.addEventListener("click", async () => {
