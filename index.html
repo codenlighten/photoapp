@@ -215,23 +215,22 @@
 					previewPhotoEl.src = imageDataURL;
 				});
 
-
-        const createQrc = (txid) => {
-          const qr = new QRious({
-            element: document.getElementById("qrcode"),
-            value: `https://whatsonchain.com/tx/${txid}`,
-            size: 200,
-          });
-        };
-        
+				const createQrc = (txid) => {
+					const qr = new QRious({
+						element: document.getElementById("qrcode"),
+						value: `https://whatsonchain.com/tx/${txid}`,
+						size: 200,
+					});
+				};
 
 				publishBtn.addEventListener("click", async () => {
 					const privateKey = localStorage.getItem("privateKey");
 					const publicKey = localStorage.getItem("publicKey");
 					const address = localStorage.getItem("address");
 					const pkh = localStorage.getItem("pkh");
-					if (utxos.length === 0) {
+					if (currentUtxos.length === 0) {
 						alert("No UTXOs");
+						currentUtxos = await getUtxos(address);
 						return;
 					}
 					const utxos = currentUtxos;
