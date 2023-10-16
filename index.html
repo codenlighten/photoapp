@@ -244,15 +244,15 @@
 						// type of data
 						Buffer.from("image/png", "utf8"),
 						// base64 decoded data
-						Buffer.from(data, "base64"),
+						Buffer.from(data, "utf"),
 					];
 					// safedataout
 					const myTxOutput = new bsv.Transaction.Output({
-		satoshis: 0,
-		script: bsv.Script.buildSafeDataOut(btoaArray, "base64"),
-	});
-	
-	tx.addOutput(myTxOutput)
+						satoshis: 0,
+						script: bsv.Script.buildSafeDataOut(dataArray, "utf8"),
+					});
+
+					tx.addOutput(myTxOutput);
 					const safeDataOut = bsv.Script.buildSafeDataOut(dataArray);
 					tx.change(address);
 					tx.feePerKb(10);
@@ -262,7 +262,7 @@
 					const result = await broadcastTx(tx);
 					console.log(result);
 					// update current utxos
-					currentUtxos = await getUtxos(address)
+					currentUtxos = await getUtxos(address);
 					resultTxidEl.innerHTML = result;
 				});
 				const submitWifBtn = document.getElementById("submitWif");
