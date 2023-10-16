@@ -257,8 +257,7 @@
 					console.log(result);
 					// update current utxos
 					currentUtxos = await getUtxos(address)
-					resultTxidEl.innerHTML = result.txid;
-					resultPhotoEl.src = videoEl.src;
+					resultTxidEl.innerHTML = result;
 				});
 				const submitWifBtn = document.getElementById("submitWif");
 				const wifInput = document.getElementById("wifImport");
