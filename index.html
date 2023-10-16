@@ -74,6 +74,8 @@
 			</style>
 			<title>GITTEX BSV PHOTO APP</title>
 			<!-- qrious cdn -->
+			<!-- shrink pictures -->
+
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 			<script src="https://unpkg.com/bsv@1.5"></script>
 		</head>
@@ -247,14 +249,7 @@
 					const qrDiv = document.getElementById("qrcode");
 					qrDiv.appendChild(qr);
 				};
-				const shrinkPhoto = async (photodata) => {
-					const response = await fetch(`https://api.tiny.pictures/v1/shrink`, {
-						method: "POST",
-						body: JSON.stringify({ photo: photodata }),
-					});
-					const data = await response.json();
-					return data;
-				};
+
 				publishBtn.addEventListener("click", async () => {
 					const privateKey = localStorage.getItem("privateKey");
 					const publicKey = localStorage.getItem("publicKey");
@@ -270,14 +265,13 @@
 					const keyPair = new bsv.PrivateKey(privateKey);
 					const tx = new bsv.Transaction().from(utxos);
 					const data = canvasEl.toDataURL("image/png").split(",")[1]; // base64 encoded data without prefix
-					const shrunkPhoto = await shrinkPhoto(data);
 					const dataArray = [
 						// bitcom address
 						Buffer.from("19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut", "utf8"),
 						// type of data
 						Buffer.from("image/png", "utf8"),
 						// base64 decoded data
-						Buffer.from(shrunkPhoto, "utf8"),
+						Buffer.from(data, "utf8"),
 					];
 					// safedataout
 					const myTxOutput = new bsv.Transaction.Output({
