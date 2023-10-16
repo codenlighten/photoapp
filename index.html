@@ -326,6 +326,7 @@
 						localStorage.setItem("pkh", pkh);
 
 						alert("Private key imported successfully!");
+						location.reload();
 					} catch (e) {
 						alert("Error: Invalid WIF provided.");
 					}
