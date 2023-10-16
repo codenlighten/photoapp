@@ -160,6 +160,7 @@
 					if (currentUtxos.length === 0) {
 						getUtxos(address);
 					}
+					getBalance(address);
 				}
 				const getBalance = async (address) => {
 					const response = await fetch(
