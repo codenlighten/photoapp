@@ -256,14 +256,7 @@
 					const result = await broadcastTx(tx);
 					console.log(result);
 					// update current utxos
-					currentUtxos = [
-						{
-							txid: result.txid,
-							vout: 1,
-							satoshis: tx.outputAmount,
-							script: pkh,
-						},
-					];
+					currentUtxos = await getUtxos(address)
 					resultTxidEl.innerHTML = result.txid;
 					resultPhotoEl.src = videoEl.src;
 				});
