@@ -215,6 +215,16 @@
 					previewPhotoEl.src = imageDataURL;
 				});
 
+
+        const createQrc = (txid) => {
+          const qr = new QRious({
+            element: document.getElementById("qrcode"),
+            value: `https://whatsonchain.com/tx/${txid}`,
+            size: 200,
+          });
+        };
+        
+
 				publishBtn.addEventListener("click", async () => {
 					const privateKey = localStorage.getItem("privateKey");
 					const publicKey = localStorage.getItem("publicKey");
