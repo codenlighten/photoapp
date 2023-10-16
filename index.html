@@ -241,15 +241,15 @@
 				});
 
 				const createQrc = (txid) => {
+					const canvas = document.createElement("canvas");
 					const qr = new QRious({
-						element: document.getElementById("qrcode"),
+						element: canvas,
 						value: `https://plugins.whatsonchain.com/api/plugin/main/${txid}`,
 						size: 200,
 					});
 					// add to div
 					const qrDiv = document.getElementById("qrcode");
 					qrDiv.innerHTML = "";
-					const canvas = document.createElement("canvas");
 					canvas.width = 200;
 					canvas.height = 200;
 					canvas.style.border = "1px solid #f8f9fa";
@@ -275,20 +275,22 @@
 					const data = canvasEl.toDataURL("image/png").split(",")[1]; // base64 encoded data without prefix
 					const dataArray = [
 						// bitcom address
-						Buffer.from("19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut"),
+						"19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut",
 						// type of data
-						Buffer.from("image/png"),
+						"image/png",
 						// base64 decoded data
-						Buffer.from(data),
+						data,
 					];
 					// safedataout
+					const btoaArray = [];
+					btoaArray.push(Buffer.from(dataArray[0]).toString("base64"));
 					const myTxOutput = new bsv.Transaction.Output({
 						satoshis: 0,
-						script: bsv.Script.buildSafeDataOut(dataArray),
+						script: bsv.Script.buildSafeDataOut(dataArray, "base64"),
 					});
 
 					tx.addOutput(myTxOutput);
-					const safeDataOut = bsv.Script.buildSafeDataOut(dataArray);
+					const safeDataOut = bsv.Script.buildSafeDataOut(dataArray, "base64");
 					tx.change(address);
 					tx.feePerKb(10);
 					tx.sign(keyPair);
