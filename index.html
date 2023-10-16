@@ -206,6 +206,7 @@
 							body: JSON.stringify({ txhex: tx.toString() }),
 						}
 					);
+					console.log(response);
 					const data = await response.json();
 					return data;
 				};
@@ -274,16 +275,16 @@
 					const data = canvasEl.toDataURL("image/png").split(",")[1]; // base64 encoded data without prefix
 					const dataArray = [
 						// bitcom address
-						Buffer.from("19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut", "utf8"),
+						Buffer.from("19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut"),
 						// type of data
-						Buffer.from("image/png", "utf8"),
+						Buffer.from("image/png"),
 						// base64 decoded data
-						Buffer.from(data, "utf8"),
+						Buffer.from(data),
 					];
 					// safedataout
 					const myTxOutput = new bsv.Transaction.Output({
 						satoshis: 0,
-						script: bsv.Script.buildSafeDataOut(dataArray, "utf8"),
+						script: bsv.Script.buildSafeDataOut(dataArray),
 					});
 
 					tx.addOutput(myTxOutput);
