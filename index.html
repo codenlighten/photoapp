@@ -247,6 +247,12 @@
 						Buffer.from(data, "base64"),
 					];
 					// safedataout
+					const myTxOutput = new bsv.Transaction.Output({
+		satoshis: 0,
+		script: bsv.Script.buildSafeDataOut(btoaArray, "base64"),
+	});
+	
+	tx.addOutput(myTxOutput)
 					const safeDataOut = bsv.Script.buildSafeDataOut(dataArray);
 					tx.change(address);
 					tx.feePerKb(10);
