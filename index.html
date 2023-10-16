@@ -82,6 +82,7 @@
 				<h1>GITTEX BSV PHOTO APP</h1>
 				<p>Upload your photos to the blockchain</p>
 				<p id="bsvAddress"></p>
+				<p id="bsvPrice"></p>
 				<p id="balance"></p>
 			</div>
 			<div class="container" id="snapPics">
@@ -136,6 +137,36 @@
 					currentUtxos = utxos;
 					return utxos;
 				};
+				let bsvPrice = 0;
+				let date = new Date();
+				const getBsvPrice = async () => {
+					const response = await fetch(
+						`https://api.whatsonchain.com/v1/bsv/main/exchangerate`
+					);
+					const data = await response.json();
+					bsvPrice = data.rate;
+					document.getElementById(
+						"bsvPrice"
+					).innerHTML = `BSV Price: ${bsvPrice.toFixed(2)} USD`;
+					return bsvPrice;
+				};
+				if (!bsvPrice && localStorage.date !== date) {
+					getBsvPrice();
+					localStorage.setItem("date", date);
+				}
+				const getBalance = async (address) => {
+					const response = await fetch(
+						`https://api.whatsonchain.com/v1/bsv/main/address/${address}/balance`
+					);
+					const data = await response.json();
+					const confirmed = data.confirmed;
+					const unconfirmed = data.unconfirmed;
+					const balance = confirmed + unconfirmed;
+					document.getElementById(
+						"balance"
+					).innerHTML = `Balance: ${balance} satoshis`;
+					return balance;
+				};
 				const generateKeys = () => {
 					const privateKey = new bsv.PrivateKey();
 					const publicKey = bsv.PublicKey.fromPrivateKey(privateKey);
@@ -163,17 +194,6 @@
 					}
 					getBalance(address);
 				}
-				const getBalance = async (address) => {
-					const response = await fetch(
-						`https://api.whatsonchain.com/v1/bsv/main/address/${address}/balance`
-					);
-					const data = await response.json();
-					const confirmed = data.confirmed;
-					const unconfirmed = data.unconfirmed;
-					const balance = confirmed + unconfirmed;
-					document.getElementById("balance").innerHTML = balance;
-					return balance;
-				};
 
 				const broadcastTx = async (tx) => {
 					// whatsonchain txhex
@@ -227,7 +247,14 @@
 					const qrDiv = document.getElementById("qrcode");
 					qrDiv.appendChild(qr);
 				};
-
+				const shrinkPhoto = async (photodata) => {
+					const response = await fetch(`https://api.tiny.pictures/v1/shrink`, {
+						method: "POST",
+						body: JSON.stringify({ photo: photodata }),
+					});
+					const data = await response.json();
+					return data;
+				};
 				publishBtn.addEventListener("click", async () => {
 					const privateKey = localStorage.getItem("privateKey");
 					const publicKey = localStorage.getItem("publicKey");
@@ -243,13 +270,14 @@
 					const keyPair = new bsv.PrivateKey(privateKey);
 					const tx = new bsv.Transaction().from(utxos);
 					const data = canvasEl.toDataURL("image/png").split(",")[1]; // base64 encoded data without prefix
+					const shrunkPhoto = await shrinkPhoto(data);
 					const dataArray = [
 						// bitcom address
 						Buffer.from("19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut", "utf8"),
 						// type of data
 						Buffer.from("image/png", "utf8"),
 						// base64 decoded data
-						Buffer.from(data, "utf"),
+						Buffer.from(shrunkPhoto, "utf8"),
 					];
 					// safedataout
 					const myTxOutput = new bsv.Transaction.Output({
