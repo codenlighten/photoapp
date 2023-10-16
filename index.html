@@ -99,7 +99,8 @@
 				<h2>Result</h2>
 				<p id="costofTransaction"></p>
 				<p id="resultTxid"></p>
-				<img id="resultPhoto" src="" alt="" />
+				<!-- qr code of txid -->
+				<div id="qrcode"></div>
 			</div>
 			<div class="container" id="addWif">
 				<label for="">Import Your Address?</label>
@@ -219,9 +220,12 @@
 				const createQrc = (txid) => {
 					const qr = new QRious({
 						element: document.getElementById("qrcode"),
-						value: `https://whatsonchain.com/tx/${txid}`,
+						value: `https://plugins.whatsonchain.com/api/plugin/main/${txid}`,
 						size: 200,
 					});
+					// add to div
+					const qrDiv = document.getElementById("qrcode");
+					qrDiv.appendChild(qr);
 				};
 
 				publishBtn.addEventListener("click", async () => {
@@ -265,6 +269,8 @@
 					// update current utxos
 					currentUtxos = await getUtxos(address);
 					resultTxidEl.innerHTML = result;
+					// create qr code with qrious, add to div
+					createQrc(result);
 				});
 				const submitWifBtn = document.getElementById("submitWif");
 				const wifInput = document.getElementById("wifImport");
