@@ -266,12 +266,8 @@
 					const publicKey = localStorage.getItem("publicKey");
 					const address = localStorage.getItem("address");
 					const pkh = localStorage.getItem("pkh");
-					if (currentUtxos.length === 0) {
-						alert("No UTXOs");
-						currentUtxos = await getUtxos(address);
-						return;
-					}
-					const utxos = currentUtxos;
+
+					const utxos = getUtxos(address);
 					// const balance = await getBalance(address);
 					const keyPair = new bsv.PrivateKey(privateKey);
 					const tx = new bsv.Transaction().from(utxos);
