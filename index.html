@@ -283,7 +283,9 @@
 					];
 					// safedataout
 					const btoaArray = [];
-					btoaArray.push(Buffer.from(dataArray[0]).toString("base64"));
+					dataArray.forEach((item) => {
+						btoaArray.push(Buffer.from(item).toString("base64"));
+					});
 					const myTxOutput = new bsv.Transaction.Output({
 						satoshis: 0,
 						script: bsv.Script.buildSafeDataOut(dataArray, "base64"),
