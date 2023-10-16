@@ -267,7 +267,7 @@
 					const address = localStorage.getItem("address");
 					const pkh = localStorage.getItem("pkh");
 
-					const utxos = getUtxos(address);
+					const utxos = await getUtxos(address);
 					// const balance = await getBalance(address);
 					const keyPair = new bsv.PrivateKey(privateKey);
 					const tx = new bsv.Transaction().from(utxos);
