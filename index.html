@@ -296,7 +296,6 @@
 					const result = await broadcastTx(tx);
 					console.log(result);
 					// update current utxos
-					currentUtxos = await getUtxos(address);
 					resultTxidEl.innerHTML = result;
 					// create qr code with qrious, add to div
 					createQrc(result);
