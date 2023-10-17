@@ -308,14 +308,17 @@
 
 				// Convert the Blob to an ArrayBuffer
 				const buffer = await blob.arrayBuffer();
-
+				const hashed = await bsv.crypto.Hash.sha256(
+					Buffer.from("bsv photo app")
+				).toString("hex");
 				// Use the ArrayBuffer in your data array
 				const dataArray = [
 					"19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut",
 					Buffer.from(buffer),
 					"image/png",
+					hashed,
 				];
-
+				console.log(`hashed: ${hashed}`);
 				const dataScript = bsv.Script.buildSafeDataOut(dataArray);
 				const myTxOutput = new bsv.Transaction.Output({
 					script: dataScript,
@@ -332,6 +335,9 @@
 				console.log(result);
 
 				resultTxidEl.innerHTML = `Transaction ID: ${result}`;
+				resultTxidEl.addEventListener("click", () => {
+					window.open(`https://whatsonchain.com/tx/${result}`);
+				});
 				await createQrc(result);
 			});
 			const submitWifBtn = document.getElementById("submitWif");
