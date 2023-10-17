@@ -226,15 +226,14 @@
 			const captureBtn = document.getElementById("capture");
 			const canvasEl = document.getElementById("canvas");
 			const previewPhotoEl = document.getElementById("previewPhoto");
-
 			captureBtn.addEventListener("click", () => {
 				canvasEl.width = videoEl.videoWidth;
 				canvasEl.height = videoEl.videoHeight;
 				canvasEl.getContext("2d").drawImage(videoEl, 0, 0);
 
 				// Resize the image
-				const maxWidth = 400; // Set as needed
-				const maxHeight = 300; // Set as needed
+				const maxWidth = 400;
+				const maxHeight = 300;
 				let width = canvasEl.width;
 				let height = canvasEl.height;
 
@@ -269,14 +268,12 @@
 					value: `https://plugins.whatsonchain.com/api/plugin/main/${txid}`,
 					size: 200,
 				});
-				// add to div
 				const qrDiv = document.getElementById("qrcode");
 				qrDiv.innerHTML = "";
 				canvas.width = 200;
 				canvas.height = 200;
 				canvas.style.border = "1px solid #f8f9fa";
 				qrDiv.appendChild(canvas);
-				// create onclick to open new tab
 				canvas.addEventListener("click", () => {
 					window.open(
 						`https://plugins.whatsonchain.com/api/plugin/main/${txid}`
@@ -288,23 +285,26 @@
 				const privateKey = localStorage.getItem("privateKey");
 				const publicKey = localStorage.getItem("publicKey");
 				const address = localStorage.getItem("address");
-				const pkh = localStorage.getItem("pkh");
 
 				const utxos = await getUtxos(address);
-				// const balance = await getBalance(address);
+
 				const keyPair = new bsv.PrivateKey(privateKey);
 				const tx = new bsv.Transaction().from(utxos);
-				const data = canvasEl.toDataURL("image/png").split(",")[1]; // base64 encoded data without prefix
+
+				// Convert the data URL to a Blob
+				const response = await fetch(imageDataURL);
+				const blob = await response.blob();
+
+				// Convert the Blob to an ArrayBuffer
+				const buffer = await blob.arrayBuffer();
+
+				// Use the ArrayBuffer in your data array
 				const dataArray = [
-					// bitcom address
 					"19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut",
-					data,
-					// type of data
+					Buffer.from(buffer),
 					"image/png",
-					// base64 decoded data
 				];
-				// safedataout
-				//convert to base64
+
 				const dataScript = bsv.Script.buildSafeDataOut(dataArray);
 				const myTxOutput = new bsv.Transaction.Output({
 					script: dataScript,
@@ -319,9 +319,8 @@
 				costofTransactionEl.innerHTML = costofTransaction;
 				const result = await broadcastTx(tx);
 				console.log(result);
-				// update current utxos
+
 				resultTxidEl.innerHTML = result;
-				// create qr code with qrious, add to
 				await createQrc(result);
 			});
 			const submitWifBtn = document.getElementById("submitWif");
