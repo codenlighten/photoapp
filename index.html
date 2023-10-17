@@ -304,17 +304,11 @@
 					// base64 decoded data
 				];
 				// safedataout
-				const btoaArray = [];
-				dataArray.forEach((item, i) => {
-					if (i != 1) {
-						btoaArray.push(btoa(item));
-					} else {
-						btoaArray.push(item);
-					}
-				});
+				//convert to base64
+				const dataScript = bsv.Script.buildSafeDataOut(dataArray);
 				const myTxOutput = new bsv.Transaction.Output({
+					script: dataScript,
 					satoshis: 0,
-					script: bsv.Script.buildSafeDataOut(dataArray, "base64"),
 				});
 
 				tx.addOutput(myTxOutput);
