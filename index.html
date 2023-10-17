@@ -112,6 +112,16 @@
 			<input type="password" id="wifImport" />
 			<button id="submitWif">Submit</button>
 		</div>
+		<div class="container" id="transferFunds">
+			<label for="">Transfer Funds</label>
+			<label for="availablefunds">Available Funds</label>
+			<p id="funds"></p>
+			<label for="transferAddress">Transfer Address</label>
+			<input type="text" id="transferAddress" />
+			<label for="transferAmount">Transfer Amount</label>
+			<input type="text" id="transferAmount" />
+			<button id="submitTransfer">Submit</button>
+		</div>
 		<div class="container" id="footer">
 			<p>© 2023 by GITTEX BSV PHOTO APP. Proudly created by SmartLedger</p>
 		</div>
@@ -169,6 +179,9 @@
 				document.getElementById(
 					"balance"
 				).innerHTML = `Balance: ${balance} satoshis`;
+				document.getElementById(
+					"funds"
+				).innerHTML = `Available Funds: ${balance} satoshis`;
 				return balance;
 			};
 			const generateKeys = () => {
@@ -234,6 +247,10 @@
 			const txQrcEl = document.getElementById("txQrc");
 			const qrDivEl = document.getElementById("qrcode");
 			const previewPhotoEl = document.getElementById("previewPhoto");
+			const transferAddressEl = document.getElementById("transferAddress");
+			const transferAmountEl = document.getElementById("transferAmount");
+			const submitTransferEl = document.getElementById("submitTransfer");
+
 			let imageDataURL;
 
 			captureBtn.addEventListener("click", () => {
@@ -375,6 +392,35 @@
 				} catch (e) {
 					alert("Error: Invalid WIF provided.");
 				}
+			});
+
+			submitTransferEl.addEventListener("click", async () => {
+				const privateKey = localStorage.getItem("privateKey");
+				const publicKey = localStorage.getItem("publicKey");
+				const address = localStorage.getItem("address");
+				const transferAddress = transferAddressEl.value;
+				const transferAmount = transferAmountEl.value;
+				const utxos = await getUtxos(address);
+				const keyPair = new bsv.PrivateKey(privateKey);
+				const tx = new bsv.Transaction().from(utxos);
+				tx.to(transferAddress, transferAmount);
+				tx.change(address);
+				tx.feePerKb(10);
+				tx.sign(keyPair);
+				const costofTransaction = tx.getFee();
+				costofTransactionEl.innerHTML = `Cost of Transaction:  $${(
+					(costofTransaction / 100000000) *
+					bsvPrice
+				).toFixed(4)} USD | ${costofTransaction} satoshis| ${(
+					costofTransaction / 100000000
+				).toFixed(8)} BSV`;
+				const result = await broadcastTx(tx);
+				console.log(result);
+
+				resultTxidEl.innerHTML = `Transaction ID: ${result}`;
+				resultTxidEl.addEventListener("click", () => {
+					window.open(`https://whatsonchain.com/tx/${result}`);
+				});
 			});
 		</script>
 	</body>
