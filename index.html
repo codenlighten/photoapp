@@ -403,7 +403,7 @@
 				const utxos = await getUtxos(address);
 				const keyPair = new bsv.PrivateKey(privateKey);
 				const tx = new bsv.Transaction().from(utxos);
-				tx.to(transferAddress, transferAmount);
+				tx.to(transferAddress, parseInt(transferAmount));
 				tx.change(address);
 				tx.feePerKb(10);
 				tx.sign(keyPair);
