@@ -217,9 +217,7 @@
 					document.getElementById(
 						"bsvAddress"
 					).innerHTML = `BSV Address: ${address}`;
-					if (currentUtxos.length === 0) {
-						await getUtxos(address);
-					}
+
 					await getBalance(address);
 				}
 			});
