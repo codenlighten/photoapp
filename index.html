@@ -135,6 +135,22 @@
 		</div>
 		<script>
 			const Buffer = bsv.deps.Buffer;
+
+			const uploadBtn = document.getElementById("upload");
+			const videoEl = document.getElementById("video");
+			const resultTxidEl = document.getElementById("resultTxid");
+			const resultPhotoEl = document.getElementById("resultPhoto");
+			const costofTransactionEl = document.getElementById("costofTransaction");
+			const publishBtn = document.getElementById("publish");
+			const captureBtn = document.getElementById("capture");
+			const canvasEl = document.getElementById("canvas");
+			const txQrcEl = document.getElementById("txQrc");
+			const qrDivEl = document.getElementById("qrcode");
+			const previewPhotoEl = document.getElementById("previewPhoto");
+			const transferAddressEl = document.getElementById("transferAddress");
+			const transferAmountEl = document.getElementById("transferAmount");
+			const submitTransferEl = document.getElementById("submitTransfer");
+			let imageDataURL;
 			let currentUtxos = [];
 
 			const getUtxos = async (address) => {
@@ -204,23 +220,39 @@
 				localStorage.setItem("pkh", pkh.toString());
 				return { privateKey, publicKey, address };
 			};
-			document.body.addEventListener("DOMContentLoaded", async () => {
+			const check = async () => {
+				console.log("DOM loaded");
 				if (!localStorage.getItem("privateKey")) {
+					console.log("No private key found, generating new keys...");
 					generateKeys();
 				} else {
-					const privateKey = localStorage.getItem("privateKey");
-					const publicKey = localStorage.getItem("publicKey");
-					const address = localStorage.getItem("address");
-					console.log(privateKey);
-					console.log(publicKey);
-					console.log(address);
-					document.getElementById(
-						"bsvAddress"
-					).innerHTML = `BSV Address: ${address}`;
-
-					await getBalance(address);
+					displayUserKeysAndBalance();
 				}
-			});
+			};
+			check();
+
+			async function displayUserKeysAndBalance() {
+				const privateKey = localStorage.getItem("privateKey");
+				const publicKey = localStorage.getItem("publicKey");
+				const address = localStorage.getItem("address");
+
+				logKeys(privateKey, publicKey, address);
+				console.log("address", address);
+				updateDisplayedAddress(address);
+				await getBalance(address);
+			}
+
+			function logKeys(privateKey, publicKey, address) {
+				console.log("Private Key:", privateKey);
+				console.log("Public Key:", publicKey);
+				console.log("Address:", address);
+			}
+
+			function updateDisplayedAddress(address) {
+				document.getElementById(
+					"bsvAddress"
+				).innerHTML = `BSV Address: ${address}`;
+			}
 
 			const broadcastTx = async (tx) => {
 				// whatsonchain txhex
@@ -249,23 +281,6 @@
 				.catch((error) => {
 					console.error("Error accessing the camera:", error);
 				});
-
-			const uploadBtn = document.getElementById("upload");
-			const videoEl = document.getElementById("video");
-			const resultTxidEl = document.getElementById("resultTxid");
-			const resultPhotoEl = document.getElementById("resultPhoto");
-			const costofTransactionEl = document.getElementById("costofTransaction");
-			const publishBtn = document.getElementById("publish");
-			const captureBtn = document.getElementById("capture");
-			const canvasEl = document.getElementById("canvas");
-			const txQrcEl = document.getElementById("txQrc");
-			const qrDivEl = document.getElementById("qrcode");
-			const previewPhotoEl = document.getElementById("previewPhoto");
-			const transferAddressEl = document.getElementById("transferAddress");
-			const transferAmountEl = document.getElementById("transferAmount");
-			const submitTransferEl = document.getElementById("submitTransfer");
-
-			let imageDataURL;
 
 			captureBtn.addEventListener("click", () => {
 				canvasEl.width = videoEl.videoWidth;
