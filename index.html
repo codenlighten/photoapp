@@ -103,7 +103,7 @@
 			<img id="previewPhoto" src="" alt="" />
 			<button id="publish">Publish to the Blockchain!</button>
 		</div>
-		<div class="container" id="resultTxidPhoto">
+		<div class="container" id="resultTxidPhoto" style="display: none">
 			<h2>Result</h2>
 			<p id="costofTransaction"></p>
 			<p id="resultTxid"></p>
@@ -403,6 +403,7 @@
 					resultTxidEl.addEventListener("click", () => {
 						window.open(`https://whatsonchain.com/tx/${result}`);
 					});
+					document.getElementById("resultTxidPhoto").style.display = "block";
 					await createQrc(result);
 					await getBalance(address);
 				} catch (e) {
