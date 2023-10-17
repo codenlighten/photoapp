@@ -88,6 +88,7 @@
 			<h1>GITTEX BSV Blockchain PHOTO Booth</h1>
 			<p>Post your photos to the blockchain</p>
 			<p id="bsvAddress"></p>
+			<div id="addressQrDiv"><canvas id="addressQr"> </canvas></div>
 			<p id="bsvPrice"></p>
 			<p id="balance"></p>
 		</div>
@@ -235,6 +236,18 @@
 				const privateKey = localStorage.getItem("privateKey");
 				const publicKey = localStorage.getItem("publicKey");
 				const address = localStorage.getItem("address");
+				const addressQrDiv = document.getElementById("addressQrDiv");
+				const addressCanvas = document.getElementById("addressQr");
+				const qr = new QRious({
+					element: addressCanvas,
+					value: address,
+					size: 200,
+				});
+				const canvas = qr.canvas;
+				canvas.id = "addressQr";
+				canvas.style.display = "block";
+				canvas.style.margin = "0 auto";
+				addressQrDiv.appendChild(canvas);
 
 				logKeys(privateKey, publicKey, address);
 				console.log("address", address);
