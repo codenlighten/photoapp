@@ -231,7 +231,34 @@
 				canvasEl.width = videoEl.videoWidth;
 				canvasEl.height = videoEl.videoHeight;
 				canvasEl.getContext("2d").drawImage(videoEl, 0, 0);
-				const imageDataURL = canvasEl.toDataURL("image/png");
+
+				// Resize the image
+				const maxWidth = 400; // Set as needed
+				const maxHeight = 300; // Set as needed
+				let width = canvasEl.width;
+				let height = canvasEl.height;
+
+				if (width > height) {
+					if (width > maxWidth) {
+						height *= maxWidth / width;
+						width = maxWidth;
+					}
+				} else {
+					if (height > maxHeight) {
+						width *= maxHeight / height;
+						height = maxHeight;
+					}
+				}
+
+				const canvasResized = document.createElement("canvas");
+				canvasResized.width = width;
+				canvasResized.height = height;
+
+				const ctx = canvasResized.getContext("2d");
+				ctx.drawImage(canvasEl, 0, 0, width, height);
+
+				// Convert to data URL with reduced quality
+				const imageDataURL = canvasResized.toDataURL("image/png", 0.3);
 				previewPhotoEl.src = imageDataURL;
 			});
 
