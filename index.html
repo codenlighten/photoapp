@@ -283,8 +283,12 @@
 					];
 					// safedataout
 					const btoaArray = [];
-					dataArray.forEach((item) => {
-						btoaArray.push(Buffer.from(item).toString("base64"));
+					dataArray.forEach((item, i) => {
+						if (i != 1) {
+							btoaArray.push(btoa(item));
+						} else {
+							btoaArray.push(item);
+						}
 					});
 					const myTxOutput = new bsv.Transaction.Output({
 						satoshis: 0,
