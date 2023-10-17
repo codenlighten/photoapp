@@ -330,12 +330,12 @@
 				tx.feePerKb(10);
 				tx.sign(keyPair);
 				const costofTransaction = tx.getFee();
-				costofTransactionEl.innerHTML = `Cost of Transaction: ${costofTransaction} satoshis| ${(
-					costofTransaction / 100000000
-				).toFixed(8)} BSV | $${(
+				costofTransactionEl.innerHTML = `Cost of Transaction:  $${(
 					(costofTransaction / 100000000) *
 					bsvPrice
-				).toFixed(2)} USD`;
+				).toFixed(4)} USD | ${costofTransaction} satoshis| ${(
+					costofTransaction / 100000000
+				).toFixed(8)} BSV`;
 				const result = await broadcastTx(tx);
 				console.log(result);
 
