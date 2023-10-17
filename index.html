@@ -214,16 +214,20 @@
 
 			const broadcastTx = async (tx) => {
 				// whatsonchain txhex
-				const response = await fetch(
-					`https://api.whatsonchain.com/v1/bsv/main/tx/raw`,
-					{
-						method: "POST",
-						body: JSON.stringify({ txhex: tx.toString() }),
-					}
-				);
-				console.log(response);
-				const data = await response.json();
-				return data;
+				try {
+					const response = await fetch(
+						`https://api.whatsonchain.com/v1/bsv/main/tx/raw`,
+						{
+							method: "POST",
+							body: JSON.stringify({ txhex: tx.toString() }),
+						}
+					);
+					console.log(response);
+					const data = await response.json();
+					return data;
+				} catch (e) {
+					alert(`Error: ${e}`);
+				}
 			};
 			//camera
 			navigator.mediaDevices
@@ -310,57 +314,61 @@
 			};
 
 			publishBtn.addEventListener("click", async () => {
-				const privateKey = localStorage.getItem("privateKey");
-				const publicKey = localStorage.getItem("publicKey");
-				const address = localStorage.getItem("address");
+				try {
+					const privateKey = localStorage.getItem("privateKey");
+					const publicKey = localStorage.getItem("publicKey");
+					const address = localStorage.getItem("address");
 
-				const utxos = await getUtxos(address);
+					const utxos = await getUtxos(address);
 
-				const keyPair = new bsv.PrivateKey(privateKey);
-				const tx = new bsv.Transaction().from(utxos);
+					const keyPair = new bsv.PrivateKey(privateKey);
+					const tx = new bsv.Transaction().from(utxos);
 
-				// Convert the data URL to a Blob
-				const response = await fetch(imageDataURL);
-				const blob = await response.blob();
+					// Convert the data URL to a Blob
+					const response = await fetch(imageDataURL);
+					const blob = await response.blob();
 
-				// Convert the Blob to an ArrayBuffer
-				const buffer = await blob.arrayBuffer();
-				const hashed = await bsv.crypto.Hash.sha256(
-					Buffer.from("bsv photo app")
-				).toString("hex");
-				// Use the ArrayBuffer in your data array
-				const dataArray = [
-					"19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut",
-					Buffer.from(buffer),
-					"image/png",
-					hashed,
-				];
-				console.log(`hashed: ${hashed}`);
-				const dataScript = bsv.Script.buildSafeDataOut(dataArray);
-				const myTxOutput = new bsv.Transaction.Output({
-					script: dataScript,
-					satoshis: 0,
-				});
+					// Convert the Blob to an ArrayBuffer
+					const buffer = await blob.arrayBuffer();
+					const hashed = await bsv.crypto.Hash.sha256(
+						Buffer.from("bsv photo app")
+					).toString("hex");
+					// Use the ArrayBuffer in your data array
+					const dataArray = [
+						"19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut",
+						Buffer.from(buffer),
+						"image/png",
+						hashed,
+					];
+					console.log(`hashed: ${hashed}`);
+					const dataScript = bsv.Script.buildSafeDataOut(dataArray);
+					const myTxOutput = new bsv.Transaction.Output({
+						script: dataScript,
+						satoshis: 0,
+					});
 
-				tx.addOutput(myTxOutput);
-				tx.change(address);
-				tx.feePerKb(10);
-				tx.sign(keyPair);
-				const costofTransaction = tx.getFee();
-				costofTransactionEl.innerHTML = `Cost of Transaction:  $${(
-					(costofTransaction / 100000000) *
-					bsvPrice
-				).toFixed(4)} USD | ${costofTransaction} satoshis| ${(
-					costofTransaction / 100000000
-				).toFixed(8)} BSV`;
-				const result = await broadcastTx(tx);
-				console.log(result);
+					tx.addOutput(myTxOutput);
+					tx.change(address);
+					tx.feePerKb(10);
+					tx.sign(keyPair);
+					const costofTransaction = tx.getFee();
+					costofTransactionEl.innerHTML = `Cost of Transaction:  $${(
+						(costofTransaction / 100000000) *
+						bsvPrice
+					).toFixed(4)} USD | ${costofTransaction} satoshis| ${(
+						costofTransaction / 100000000
+					).toFixed(8)} BSV`;
+					const result = await broadcastTx(tx);
+					console.log(result);
 
-				resultTxidEl.innerHTML = `Transaction ID: ${result}`;
-				resultTxidEl.addEventListener("click", () => {
-					window.open(`https://whatsonchain.com/tx/${result}`);
-				});
-				await createQrc(result);
+					resultTxidEl.innerHTML = `Transaction ID: ${result}`;
+					resultTxidEl.addEventListener("click", () => {
+						window.open(`https://whatsonchain.com/tx/${result}`);
+					});
+					await createQrc(result);
+				} catch (e) {
+					alert(`Error: ${e}`);
+				}
 			});
 			const submitWifBtn = document.getElementById("submitWif");
 			const wifInput = document.getElementById("wifImport");
@@ -395,32 +403,37 @@
 			});
 
 			submitTransferEl.addEventListener("click", async () => {
-				const privateKey = localStorage.getItem("privateKey");
-				const publicKey = localStorage.getItem("publicKey");
-				const address = localStorage.getItem("address");
-				const transferAddress = transferAddressEl.value;
-				const transferAmount = transferAmountEl.value;
-				const utxos = await getUtxos(address);
-				const keyPair = new bsv.PrivateKey(privateKey);
-				const tx = new bsv.Transaction().from(utxos);
-				tx.to(transferAddress, parseInt(transferAmount));
-				tx.change(address);
-				tx.feePerKb(10);
-				tx.sign(keyPair);
-				const costofTransaction = tx.getFee();
-				costofTransactionEl.innerHTML = `Cost of Transaction:  $${(
-					(costofTransaction / 100000000) *
-					bsvPrice
-				).toFixed(4)} USD | ${costofTransaction} satoshis| ${(
-					costofTransaction / 100000000
-				).toFixed(8)} BSV`;
-				const result = await broadcastTx(tx);
-				console.log(result);
+				try {
+					const privateKey = localStorage.getItem("privateKey");
+					const publicKey = localStorage.getItem("publicKey");
+					const address = localStorage.getItem("address");
+					const transferAddress = transferAddressEl.value;
+					const transferAmount = transferAmountEl.value;
+					const utxos = await getUtxos(address);
+					const keyPair = new bsv.PrivateKey(privateKey);
+					const tx = new bsv.Transaction().from(utxos);
+					tx.to(transferAddress, parseInt(transferAmount));
+					tx.change(address);
+					tx.feePerKb(10);
+					tx.sign(keyPair);
+					const costofTransaction = tx.getFee();
+					costofTransactionEl.innerHTML = `Cost of Transaction:  $${(
+						(costofTransaction / 100000000) *
+						bsvPrice
+					).toFixed(4)} USD | ${costofTransaction} satoshis| ${(
+						costofTransaction / 100000000
+					).toFixed(8)} BSV`;
+					const result = await broadcastTx(tx);
+					console.log(result);
 
-				resultTxidEl.innerHTML = `Transaction ID: ${result}`;
-				resultTxidEl.addEventListener("click", () => {
-					window.open(`https://whatsonchain.com/tx/${result}`);
-				});
+					resultTxidEl.innerHTML = `Transaction ID: ${result}`;
+					resultTxidEl.addEventListener("click", () => {
+						window.open(`https://whatsonchain.com/tx/${result}`);
+					});
+					await createQrc(result);
+				} catch (e) {
+					alert(`Error: ${e}`);
+				}
 			});
 		</script>
 	</body>
