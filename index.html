@@ -258,7 +258,7 @@
 				ctx.drawImage(canvasEl, 0, 0, width, height);
 
 				// Convert to data URL with reduced quality
-				const imageDataURL = canvasResized.toDataURL("image/png", 0.3);
+				const imageDataURL = canvasResized.toDataURL("image/png", 0.1);
 				previewPhotoEl.src = imageDataURL;
 			});
 
