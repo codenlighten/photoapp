@@ -99,7 +99,13 @@
 			<p id="costofTransaction"></p>
 			<p id="resultTxid"></p>
 			<!-- qr code of txid -->
-			<div id="qrcode"></div>
+			<div id="qrcode" style="display: none">
+				<h2>
+					Your Photo has been published to the Blockchain succesfully! Scan the
+					QR Code below to view!
+				</h2>
+				<canvas id="txQrc" style="display: none"></canvas>
+			</div>
 		</div>
 		<div class="container" id="addWif">
 			<label for="">Import Your Address?</label>
@@ -225,7 +231,11 @@
 			const publishBtn = document.getElementById("publish");
 			const captureBtn = document.getElementById("capture");
 			const canvasEl = document.getElementById("canvas");
+			const txQrcEl = document.getElementById("txQrc");
+			const qrDivEl = document.getElementById("qrcode");
 			const previewPhotoEl = document.getElementById("previewPhoto");
+			let imageDataURL;
+
 			captureBtn.addEventListener("click", () => {
 				canvasEl.width = videoEl.videoWidth;
 				canvasEl.height = videoEl.videoHeight;
@@ -257,28 +267,29 @@
 				ctx.drawImage(canvasEl, 0, 0, width, height);
 
 				// Convert to data URL with reduced quality
-				const imageDataURL = canvasResized.toDataURL("image/png", 0.1);
+				imageDataURL = canvasResized.toDataURL("image/png", 0.1);
 				previewPhotoEl.src = imageDataURL;
 			});
 
 			const createQrc = (txid) => {
-				const canvas = document.createElement("canvas");
 				const qr = new QRious({
-					element: canvas,
+					element: txQrcEl,
 					value: `https://plugins.whatsonchain.com/api/plugin/main/${txid}`,
 					size: 200,
 				});
 				const qrDiv = document.getElementById("qrcode");
-				qrDiv.innerHTML = "";
-				canvas.width = 200;
-				canvas.height = 200;
-				canvas.style.border = "1px solid #f8f9fa";
+				const canvas = qr.canvas;
+				canvas.id = "txQrc";
+				canvas.style.display = "block";
+				canvas.style.margin = "0 auto";
 				qrDiv.appendChild(canvas);
+				qrDiv.style.display = "block";
 				canvas.addEventListener("click", () => {
 					window.open(
 						`https://plugins.whatsonchain.com/api/plugin/main/${txid}`
 					);
 				});
+				console.log(txid);
 			};
 
 			publishBtn.addEventListener("click", async () => {
@@ -320,7 +331,7 @@
 				const result = await broadcastTx(tx);
 				console.log(result);
 
-				resultTxidEl.innerHTML = result;
+				resultTxidEl.innerHTML = `Transaction ID: ${result}`;
 				await createQrc(result);
 			});
 			const submitWifBtn = document.getElementById("submitWif");
