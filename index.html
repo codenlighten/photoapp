@@ -204,21 +204,25 @@
 				localStorage.setItem("pkh", pkh.toString());
 				return { privateKey, publicKey, address };
 			};
-			if (!localStorage.getItem("privateKey")) {
-				generateKeys();
-			} else {
-				const privateKey = localStorage.getItem("privateKey");
-				const publicKey = localStorage.getItem("publicKey");
-				const address = localStorage.getItem("address");
-				console.log(privateKey);
-				console.log(publicKey);
-				console.log(address);
-				document.getElementById("bsvAddress").innerHTML = address;
-				if (currentUtxos.length === 0) {
-					getUtxos(address);
+			document.body.addEventListener("DOMContentLoaded", async () => {
+				if (!localStorage.getItem("privateKey")) {
+					generateKeys();
+				} else {
+					const privateKey = localStorage.getItem("privateKey");
+					const publicKey = localStorage.getItem("publicKey");
+					const address = localStorage.getItem("address");
+					console.log(privateKey);
+					console.log(publicKey);
+					console.log(address);
+					document.getElementById(
+						"bsvAddress"
+					).innerHTML = `BSV Address: ${address}`;
+					if (currentUtxos.length === 0) {
+						await getUtxos(address);
+					}
+					await getBalance(address);
 				}
-				getBalance(address);
-			}
+			});
 
 			const broadcastTx = async (tx) => {
 				// whatsonchain txhex
