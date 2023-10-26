@@ -94,13 +94,10 @@
 			}
 		</style>
 		<title>GITTEX BSV PHOTO APP</title>
-		<!-- qrious cdn -->
-		<!-- shrink pictures -->
-		<!-- monteserrat google fonts -->
 	</head>
 	<body>
 		<div class="container" id="header">
-			<h1>GITTEX BSV Blockchain PHOTO Booth</h1>
+			<h1>BSV Blockchain PHOTO Booth</h1>
 			<p>Post your photos to the blockchain</p>
 			<p id="bsvAddress"></p>
 			<div id="addressQrDiv"><canvas id="addressQr"> </canvas></div>
@@ -151,7 +148,6 @@
 		</div>
 		<script>
 			const Buffer = bsv.deps.Buffer;
-
 			const uploadBtn = document.getElementById("upload");
 			const videoEl = document.getElementById("video");
 			const resultTxidEl = document.getElementById("resultTxid");
@@ -241,6 +237,7 @@
 				if (!localStorage.getItem("privateKey")) {
 					console.log("No private key found, generating new keys...");
 					generateKeys();
+					location.reload();
 				} else {
 					displayUserKeysAndBalance();
 				}
