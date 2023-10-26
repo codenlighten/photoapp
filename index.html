@@ -3,6 +3,37 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<!-- favicon -->
+		<link
+			rel="apple-touch-icon"
+			sizes="180x180"
+			href="https://plugins.whatsonchain.com/api/plugin/main/9733109ecca2c824afb31074e9e7e8b40906d1458c92930c08757fdf71664ec4"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="32x32"
+			href="https://plugins.whatsonchain.com/api/plugin/main/9733109ecca2c824afb31074e9e7e8b40906d1458c92930c08757fdf71664ec4"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="16x16"
+			href="https://plugins.whatsonchain.com/api/plugin/main/9733109ecca2c824afb31074e9e7e8b40906d1458c92930c08757fdf71664ec4"
+		/>
+		<!-- twitter card -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:site" content="@codenlighten" />
+		<meta name="twitter:title" content="BSV Photo Booth" />
+		<meta
+			name="twitter:description"
+			content="Post your photos to the blockchain"
+		/>
+		<meta
+			name="twitter:image"
+			content="https://plugins.whatsonchain.com/api/plugin/main/9733109ecca2c824afb31074e9e7e8b40906d1458c92930c08757fdf71664ec4"
+		/>
+		<!-- open graph -->
 		<link
 			href="https://fonts.googleapis.com/css?family=Montserrat&display=swap"
 			rel="stylesheet"
@@ -16,6 +47,7 @@
 				color: #333;
 				line-height: 1.6;
 				background-image: url("./network.gif");
+				word-wrap: break-word;
 			}
 			.container {
 				background-color: #fff;
@@ -92,13 +124,23 @@
 			#qrcode canvas {
 				margin: 0 auto;
 			}
+			#logo {
+				width: 100%;
+				max-width: 400px;
+				margin: 0 auto;
+				display: block;
+			}
 		</style>
-		<title>GITTEX BSV PHOTO APP</title>
+		<title>BSV PHOTO APP</title>
 	</head>
 	<body>
 		<div class="container" id="header">
-			<h1>BSV Blockchain PHOTO Booth</h1>
-			<p>Post your photos to the blockchain</p>
+			<img
+				id="logo"
+				src="https://plugins.whatsonchain.com/api/plugin/main/9733109ecca2c824afb31074e9e7e8b40906d1458c92930c08757fdf71664ec4"
+				alt=""
+			/>
+			<h3>Post your photos to the blockchain</h3>
 			<p id="bsvAddress"></p>
 			<div id="addressQrDiv"><canvas id="addressQr"> </canvas></div>
 			<p id="bsvPrice"></p>
@@ -107,6 +149,8 @@
 		<div class="container" id="snapPics">
 			<h2>Take a picture</h2>
 			<video id="video" width="640" height="480" autoplay></video>
+			<!--photo upload option  -->
+			<input type="file" id="upload" accept="image/*" />
 			<button id="capture">Capture Photo</button>
 			<canvas id="canvas" style="display: none"></canvas>
 		</div>
@@ -162,6 +206,8 @@
 			const transferAddressEl = document.getElementById("transferAddress");
 			const transferAmountEl = document.getElementById("transferAmount");
 			const submitTransferEl = document.getElementById("submitTransfer");
+			const imageDataEl = document.getElementById("imageData");
+
 			let imageDataURL;
 			let currentUtxos = [];
 
@@ -307,41 +353,57 @@
 					console.error("Error accessing the camera:", error);
 				});
 
-			captureBtn.addEventListener("click", () => {
-				canvasEl.width = videoEl.videoWidth;
-				canvasEl.height = videoEl.videoHeight;
-				canvasEl.getContext("2d").drawImage(videoEl, 0, 0);
+			const capture = async () => {
+				// either take a photo from the camera or choose one from the user's device
 
-				// Resize the image
-				const maxWidth = 400;
-				const maxHeight = 300;
-				let width = canvasEl.width;
-				let height = canvasEl.height;
-
-				if (width > height) {
-					if (width > maxWidth) {
-						height *= maxWidth / width;
-						width = maxWidth;
-					}
+				if (uploadBtn.value) {
+					const file = uploadBtn.files[0];
+					const reader = new FileReader();
+					reader.readAsDataURL(file);
+					reader.onloadend = function () {
+						const base64String = reader.result;
+						previewPhotoEl.src = base64String;
+						imageDataURL = base64String;
+					};
 				} else {
-					if (height > maxHeight) {
-						width *= maxHeight / height;
-						height = maxHeight;
+					canvasEl.width = videoEl.videoWidth;
+					canvasEl.height = videoEl.videoHeight;
+					canvasEl.getContext("2d").drawImage(videoEl, 0, 0);
+
+					// Resize the image
+					const maxWidth = 400;
+					const maxHeight = 300;
+					let width = canvasEl.width;
+					let height = canvasEl.height;
+
+					if (width > height) {
+						if (width > maxWidth) {
+							height *= maxWidth / width;
+							width = maxWidth;
+						}
+					} else {
+						if (height > maxHeight) {
+							width *= maxHeight / height;
+							height = maxHeight;
+						}
 					}
+
+					const canvasResized = document.createElement("canvas");
+					canvasResized.width = width;
+					canvasResized.height = height;
+
+					const ctx = canvasResized.getContext("2d");
+					ctx.drawImage(canvasEl, 0, 0, width, height);
 				}
-
-				const canvasResized = document.createElement("canvas");
-				canvasResized.width = width;
-				canvasResized.height = height;
-
-				const ctx = canvasResized.getContext("2d");
-				ctx.drawImage(canvasEl, 0, 0, width, height);
 
 				// Convert to data URL with reduced quality
 				imageDataURL = canvasResized.toDataURL("image/png", 0.1);
 				previewPhotoEl.src = imageDataURL;
+			};
+			// onchange event file upload
+			uploadBtn.addEventListener("change", () => {
+				capture();
 			});
-
 			const createQrc = (txid) => {
 				const qr = new QRious({
 					element: txQrcEl,
