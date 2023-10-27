@@ -138,29 +138,46 @@
 			<img
 				id="logo"
 				src="https://plugins.whatsonchain.com/api/plugin/main/9733109ecca2c824afb31074e9e7e8b40906d1458c92930c08757fdf71664ec4"
-				alt=""
+				alt="Logo"
 			/>
-			<h3>Post your photos to the blockchain</h3>
+			<h3>Post your media to the blockchain</h3>
 			<p id="bsvAddress"></p>
 			<div id="addressQrDiv"><canvas id="addressQr"> </canvas></div>
 			<p id="bsvPrice"></p>
 			<p id="balance"></p>
 		</div>
+
 		<div class="container" id="snapPics">
-			<h2>Take a picture</h2>
+			<h2>Capture Media</h2>
 			<video id="video" width="640" height="480" autoplay></video>
-			<!--photo upload option  -->
-			<input type="file" id="upload" accept="image/*" />
-			<button id="capture">Capture Photo</button>
+			<!-- Media upload option -->
+			<input type="file" id="upload" accept="image/*,video/*" />
+			<button id="capture">Capture Media</button>
 			<button id="startStopRecord">Start Recording</button>
-			<video id="recordedVideo" width="640" height="480" controls></video>
+			<video
+				id="recordedVideo"
+				width="640"
+				height="480"
+				controls
+				style="display: none"
+			>
+				<source type="video/webm" />
+				Your browser does not support the video tag.
+			</video>
 			<canvas id="canvas" style="display: none"></canvas>
 		</div>
+
 		<div class="container" id="preview">
 			<h2>Preview</h2>
-			<img id="previewPhoto" src="" alt="" />
+			<img
+				style="display: none"
+				id="previewPhoto"
+				src=""
+				alt="Your media preview will appear here"
+			/>
 			<button id="publish">Publish to the Blockchain!</button>
 		</div>
+
 		<div class="container" id="resultTxidPhoto" style="display: none">
 			<h2>Result</h2>
 			<p id="costofTransaction"></p>
@@ -168,12 +185,13 @@
 			<!-- qr code of txid -->
 			<div id="qrcode" style="display: none">
 				<h2>
-					Your Photo has been published to the Blockchain succesfully! Scan the
+					Your media has been published to the Blockchain successfully! Scan the
 					QR Code below to view!
 				</h2>
 				<canvas id="txQrc" style="display: none"></canvas>
 			</div>
 		</div>
+
 		<div class="container" id="addWif">
 			<label for="">Import Your Address?</label>
 			<input type="password" id="wifImport" />
@@ -225,6 +243,8 @@
 				}
 			});
 			function startRecording() {
+				previewPhotoEl.style.display = "none";
+				recordedVideoEl.style.display = "none";
 				recordedChunks = [];
 				let options = { mimeType: "video/webm; codecs=vp9,opus" };
 				mediaRecorder = new MediaRecorder(videoEl.srcObject, options);
@@ -241,6 +261,7 @@
 				mediaRecorder.onstop = () => {
 					let blob = new Blob(recordedChunks, { type: "video/webm" });
 					recordedVideoEl.src = URL.createObjectURL(blob);
+					recordedVideoEl.style.display = "block";
 					recordedVideoEl.play();
 					// mute microphone
 				};
@@ -257,17 +278,18 @@
 			}
 			function stopRecording() {
 				mediaRecorder.stop();
-				videoEl.muted = false; // Mute the live video feed
+				videoEl.muted = true; // Mute the live video feed
 				isRecording = false;
 				// turn off microphone
-				mediaRecorder.stream.getAudioTracks()[0].stop();
 				startStopRecordBtn.textContent = "Start Recording";
 			}
 
 			const capture = async () => {
 				const canvasResized = document.createElement("canvas");
-
+				previewPhotoEl.style.display = "none";
+				recordedVideoEl.style.display = "none";
 				if (uploadBtn.files.length > 0) {
+					console.log("uploading");
 					// Check if a file has been uploaded
 					const file = uploadBtn.files[0];
 					const reader = new FileReader();
@@ -276,6 +298,7 @@
 						const base64String = reader.result;
 						previewPhotoEl.src = base64String;
 						imageDataURL = base64String;
+						previewPhotoEl.style.display = "block";
 					};
 				} else {
 					// No file uploaded, so capture from webcam
@@ -309,13 +332,12 @@
 					// Convert to data URL with reduced quality
 					imageDataURL = canvasResized.toDataURL("image/png", 0.1);
 					previewPhotoEl.src = imageDataURL;
+					previewPhotoEl.style.display = "block";
 				}
 			};
 
 			// onchange event file upload
-			uploadBtn.addEventListener("change", () => {
-				capture();
-			});
+			uploadBtn.addEventListener("change", capture);
 			captureBtn.addEventListener("click", capture);
 
 			const getUtxos = async (address) => {
