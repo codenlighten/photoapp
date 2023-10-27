@@ -569,6 +569,15 @@
 					});
 
 					tx.addOutput(myTxOutput);
+					const lockingScript = bsv.Script.empty();
+					lockingScript.add(Buffer.from(buffer));
+					lockingScript.add(bsv.Opcode.OP_DROP);
+					tx.addOutput(
+						new bsv.Transaction.Output({
+							script: lockingScript,
+							satoshis: 1,
+						})
+					);
 					tx.change(address);
 					tx.feePerKb(10);
 					tx.sign(keyPair);
@@ -654,6 +663,8 @@
 						window.open(`https://whatsonchain.com/tx/${result}`);
 					});
 					await createQrc(result);
+					qrDivEl.style.display = "block";
+					resultTxidEl.style.display = "block";
 				} catch (e) {
 					alert(`Error: ${e}`);
 				}

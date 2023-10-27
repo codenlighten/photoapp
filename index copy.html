@@ -138,27 +138,46 @@
 			<img
 				id="logo"
 				src="https://plugins.whatsonchain.com/api/plugin/main/9733109ecca2c824afb31074e9e7e8b40906d1458c92930c08757fdf71664ec4"
-				alt=""
+				alt="Logo"
 			/>
-			<h3>Post your photos to the blockchain</h3>
+			<h3>Post your media to the blockchain</h3>
 			<p id="bsvAddress"></p>
 			<div id="addressQrDiv"><canvas id="addressQr"> </canvas></div>
 			<p id="bsvPrice"></p>
 			<p id="balance"></p>
 		</div>
+
 		<div class="container" id="snapPics">
-			<h2>Take a picture</h2>
+			<h2>Capture Media</h2>
 			<video id="video" width="640" height="480" autoplay></video>
-			<!--photo upload option  -->
-			<input type="file" id="upload" accept="image/*" />
-			<button id="capture">Capture Photo</button>
+			<!-- Media upload option -->
+			<input type="file" id="upload" accept="image/*,video/*" />
+			<button id="capture">Capture Media</button>
+			<button id="startStopRecord">Start Recording</button>
+			<video
+				id="recordedVideo"
+				width="640"
+				height="480"
+				controls
+				style="display: none"
+			>
+				<source type="video/webm" />
+				Your browser does not support the video tag.
+			</video>
 			<canvas id="canvas" style="display: none"></canvas>
 		</div>
+
 		<div class="container" id="preview">
 			<h2>Preview</h2>
-			<img id="previewPhoto" src="" alt="" />
+			<img
+				style="display: none"
+				id="previewPhoto"
+				src=""
+				alt="Your media preview will appear here"
+			/>
 			<button id="publish">Publish to the Blockchain!</button>
 		</div>
+
 		<div class="container" id="resultTxidPhoto" style="display: none">
 			<h2>Result</h2>
 			<p id="costofTransaction"></p>
@@ -166,12 +185,13 @@
 			<!-- qr code of txid -->
 			<div id="qrcode" style="display: none">
 				<h2>
-					Your Photo has been published to the Blockchain succesfully! Scan the
+					Your media has been published to the Blockchain successfully! Scan the
 					QR Code below to view!
 				</h2>
 				<canvas id="txQrc" style="display: none"></canvas>
 			</div>
 		</div>
+
 		<div class="container" id="addWif">
 			<label for="">Import Your Address?</label>
 			<input type="password" id="wifImport" />
@@ -207,13 +227,79 @@
 			const transferAmountEl = document.getElementById("transferAmount");
 			const submitTransferEl = document.getElementById("submitTransfer");
 			const imageDataEl = document.getElementById("imageData");
-
+			const startStopRecordBtn = document.getElementById("startStopRecord");
+			const recordedVideoEl = document.getElementById("recordedVideo");
+			let mediatype = "image/png";
+			let mediaRecorder;
+			let recordedChunks = [];
+			let isRecording = false;
+			videoEl.muted = true; // Mute the live video feed
 			let imageDataURL;
 			let currentUtxos = [];
+			startStopRecordBtn.addEventListener("click", () => {
+				if (isRecording) {
+					stopRecording();
+				} else {
+					startRecording();
+				}
+			});
+			function startRecording() {
+				previewPhotoEl.style.display = "none";
+				recordedVideoEl.style.display = "none";
+				recordedChunks = [];
+				let options = { mimeType: "video/webm; codecs=vp9,opus" };
+				mediaRecorder = new MediaRecorder(videoEl.srcObject, options);
+				videoEl.muted = true; // Mute the live video feed
+
+				// Push recorded chunks to our array
+				mediaRecorder.ondataavailable = (event) => {
+					if (event.data.size > 0) {
+						recordedChunks.push(event.data);
+					}
+				};
+
+				// When recording stops, create a Blob from the chunks and display it
+				mediaRecorder.onstop = () => {
+					let blob = new Blob(recordedChunks, { type: "video/webm" });
+					recordedVideoEl.src = URL.createObjectURL(blob);
+					recordedVideoEl.style.display = "block";
+					recordedVideoEl.play();
+					//base64
+					const reader = new FileReader();
+					reader.readAsDataURL(blob);
+					reader.onloadend = function () {
+						const base64String = reader.result;
+						imageDataURL = base64String;
+						mediatype = "video/webm";
+					};
+					// mute microphone
+				};
+
+				// Start recording
+				mediaRecorder.start();
+				isRecording = true;
+				startStopRecordBtn.textContent = "Stop Recording";
+
+				// Automatically stop recording after 30 seconds
+				setTimeout(() => {
+					if (isRecording) stopRecording();
+				}, 30000);
+			}
+			function stopRecording() {
+				mediaRecorder.stop();
+				videoEl.muted = true; // Mute the live video feed
+				isRecording = false;
+				// turn off microphone
+
+				startStopRecordBtn.textContent = "Start Recording";
+			}
+
 			const capture = async () => {
 				const canvasResized = document.createElement("canvas");
-
+				previewPhotoEl.style.display = "none";
+				recordedVideoEl.style.display = "none";
 				if (uploadBtn.files.length > 0) {
+					console.log("uploading");
 					// Check if a file has been uploaded
 					const file = uploadBtn.files[0];
 					const reader = new FileReader();
@@ -222,6 +308,8 @@
 						const base64String = reader.result;
 						previewPhotoEl.src = base64String;
 						imageDataURL = base64String;
+						previewPhotoEl.style.display = "block";
+						mediatype = file.type;
 					};
 				} else {
 					// No file uploaded, so capture from webcam
@@ -255,13 +343,13 @@
 					// Convert to data URL with reduced quality
 					imageDataURL = canvasResized.toDataURL("image/png", 0.1);
 					previewPhotoEl.src = imageDataURL;
+					previewPhotoEl.style.display = "block";
+					mediatype = "image/png";
 				}
 			};
 
 			// onchange event file upload
-			uploadBtn.addEventListener("change", () => {
-				capture();
-			});
+			uploadBtn.addEventListener("change", capture);
 			captureBtn.addEventListener("click", capture);
 
 			const getUtxos = async (address) => {
@@ -350,13 +438,13 @@
 				const addressQrDiv = document.getElementById("addressQrDiv");
 				const addressCanvas = document.getElementById("addressQr");
 				navigator.mediaDevices
-					.getUserMedia({ video: true })
+					.getUserMedia({ video: true, audio: true }) // Request audio access here
 					.then((stream) => {
 						videoEl.srcObject = stream;
 						videoEl.play();
 					})
 					.catch((error) => {
-						console.error("Error accessing the camera:", error);
+						console.error("Error accessing the camera or microphone:", error);
 					});
 
 				const qr = new QRious({
@@ -430,6 +518,24 @@
 
 			publishBtn.addEventListener("click", async () => {
 				try {
+					if (imageDataURL === undefined) {
+						alert("Please upload a photo or video");
+						return;
+					}
+					//check if above 8mb
+					const size = imageDataURL.length;
+					const sizeInMb = size / 1000000;
+					if (sizeInMb > 8) {
+						alert("File size too large, please upload a file less than 8mb");
+						return;
+					}
+					if (
+						!confirm(
+							"Are you sure you want to publish this media to the blockchain?"
+						)
+					)
+						return;
+
 					const privateKey = localStorage.getItem("privateKey");
 					const publicKey = localStorage.getItem("publicKey");
 					const address = localStorage.getItem("address");
@@ -452,7 +558,7 @@
 					const dataArray = [
 						"19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut",
 						Buffer.from(buffer),
-						"image/png",
+						mediatype,
 						hashed,
 					];
 					console.log(`hashed: ${hashed}`);
@@ -552,6 +658,9 @@
 					alert(`Error: ${e}`);
 				}
 			});
+			let version = "";
+			version = new bsv.PrivateKey().toAddress().toString();
+			console.log(`version: ${version}`);
 		</script>
 	</body>
 </html>
