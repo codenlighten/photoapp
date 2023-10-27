@@ -152,8 +152,6 @@
 			<!--photo upload option  -->
 			<input type="file" id="upload" accept="image/*" />
 			<button id="capture">Capture Photo</button>
-			<button id="startStopRecord">Start Recording</button>
-			<video id="recordedVideo" width="640" height="480" controls></video>
 			<canvas id="canvas" style="display: none"></canvas>
 		</div>
 		<div class="container" id="preview">
@@ -209,61 +207,9 @@
 			const transferAmountEl = document.getElementById("transferAmount");
 			const submitTransferEl = document.getElementById("submitTransfer");
 			const imageDataEl = document.getElementById("imageData");
-			const startStopRecordBtn = document.getElementById("startStopRecord");
-			const recordedVideoEl = document.getElementById("recordedVideo");
-			let mediaRecorder;
-			let recordedChunks = [];
-			let isRecording = false;
-			videoEl.muted = true; // Mute the live video feed
+
 			let imageDataURL;
 			let currentUtxos = [];
-			startStopRecordBtn.addEventListener("click", () => {
-				if (isRecording) {
-					stopRecording();
-				} else {
-					startRecording();
-				}
-			});
-			function startRecording() {
-				recordedChunks = [];
-				let options = { mimeType: "video/webm; codecs=vp9,opus" };
-				mediaRecorder = new MediaRecorder(videoEl.srcObject, options);
-				videoEl.muted = true; // Mute the live video feed
-
-				// Push recorded chunks to our array
-				mediaRecorder.ondataavailable = (event) => {
-					if (event.data.size > 0) {
-						recordedChunks.push(event.data);
-					}
-				};
-
-				// When recording stops, create a Blob from the chunks and display it
-				mediaRecorder.onstop = () => {
-					let blob = new Blob(recordedChunks, { type: "video/webm" });
-					recordedVideoEl.src = URL.createObjectURL(blob);
-					recordedVideoEl.play();
-					// mute microphone
-				};
-
-				// Start recording
-				mediaRecorder.start();
-				isRecording = true;
-				startStopRecordBtn.textContent = "Stop Recording";
-
-				// Automatically stop recording after 30 seconds
-				setTimeout(() => {
-					if (isRecording) stopRecording();
-				}, 30000);
-			}
-			function stopRecording() {
-				mediaRecorder.stop();
-				videoEl.muted = false; // Mute the live video feed
-				isRecording = false;
-				// turn off microphone
-				mediaRecorder.stream.getAudioTracks()[0].stop();
-				startStopRecordBtn.textContent = "Start Recording";
-			}
-
 			const capture = async () => {
 				const canvasResized = document.createElement("canvas");
 
@@ -404,13 +350,13 @@
 				const addressQrDiv = document.getElementById("addressQrDiv");
 				const addressCanvas = document.getElementById("addressQr");
 				navigator.mediaDevices
-					.getUserMedia({ video: true, audio: true }) // Request audio access here
+					.getUserMedia({ video: true })
 					.then((stream) => {
 						videoEl.srcObject = stream;
 						videoEl.play();
 					})
 					.catch((error) => {
-						console.error("Error accessing the camera or microphone:", error);
+						console.error("Error accessing the camera:", error);
 					});
 
 				const qr = new QRious({
