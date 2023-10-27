@@ -518,6 +518,24 @@
 
 			publishBtn.addEventListener("click", async () => {
 				try {
+					if (toDataURL === undefined) {
+						alert("Please upload a photo or video");
+						return;
+					}
+					//check if above 8mb
+					const size = imageDataURL.length;
+					const sizeInMb = size / 1000000;
+					if (sizeInMb > 8) {
+						alert("File size too large, please upload a file less than 8mb");
+						return;
+					}
+					if (
+						!confirm(
+							"Are you sure you want to publish this media to the blockchain?"
+						)
+					)
+						return;
+
 					const privateKey = localStorage.getItem("privateKey");
 					const publicKey = localStorage.getItem("publicKey");
 					const address = localStorage.getItem("address");
