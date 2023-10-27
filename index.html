@@ -264,6 +264,14 @@
 					recordedVideoEl.src = URL.createObjectURL(blob);
 					recordedVideoEl.style.display = "block";
 					recordedVideoEl.play();
+					//base64
+					const reader = new FileReader();
+					reader.readAsDataURL(blob);
+					reader.onloadend = function () {
+						const base64String = reader.result;
+						imageDataURL = base64String;
+						mediatype = "video/webm";
+					};
 					// mute microphone
 				};
 
@@ -282,8 +290,7 @@
 				videoEl.muted = true; // Mute the live video feed
 				isRecording = false;
 				// turn off microphone
-				mediatype = "video/webm";
-				imageDataURL = recordedVideoEl.src;
+
 				startStopRecordBtn.textContent = "Start Recording";
 			}
 
