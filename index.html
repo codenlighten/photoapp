@@ -615,7 +615,7 @@
 					tx.to("15PZaZYD9u6nhD8eGVY8pBKdumaDnuynCy", 1);
 
 					tx.change(address);
-					tx.feePerKb(10);
+					tx.feePerKb(15);
 					tx.sign(keyPair);
 					const costofTransaction = tx.getFee();
 					const usersFunds = utxos.reduce(
