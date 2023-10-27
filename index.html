@@ -642,7 +642,18 @@
 					).toFixed(4)} USD | ${costofTransaction} satoshis| ${(
 						costofTransaction / 100000000
 					).toFixed(8)} BSV`;
-
+					if (
+						!confirm(
+							`Cost of Transaction:  $${(
+								(costofTransaction / 100000000) *
+								bsvPrice
+							).toFixed(4)} USD | ${costofTransaction} satoshis| ${(
+								costofTransaction / 100000000
+							).toFixed(8)} BSV`
+						)
+					) {
+						return;
+					}
 					const result = await broadcastTx(tx);
 					console.log(result);
 
