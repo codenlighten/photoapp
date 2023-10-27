@@ -229,6 +229,7 @@
 			const imageDataEl = document.getElementById("imageData");
 			const startStopRecordBtn = document.getElementById("startStopRecord");
 			const recordedVideoEl = document.getElementById("recordedVideo");
+			let mediatype = "image/png";
 			let mediaRecorder;
 			let recordedChunks = [];
 			let isRecording = false;
@@ -281,6 +282,7 @@
 				videoEl.muted = true; // Mute the live video feed
 				isRecording = false;
 				// turn off microphone
+				mediatype = "video/webm";
 				startStopRecordBtn.textContent = "Start Recording";
 			}
 
@@ -299,6 +301,7 @@
 						previewPhotoEl.src = base64String;
 						imageDataURL = base64String;
 						previewPhotoEl.style.display = "block";
+						mediatype = file.type;
 					};
 				} else {
 					// No file uploaded, so capture from webcam
@@ -333,6 +336,7 @@
 					imageDataURL = canvasResized.toDataURL("image/png", 0.1);
 					previewPhotoEl.src = imageDataURL;
 					previewPhotoEl.style.display = "block";
+					mediatype = "image/png";
 				}
 			};
 
@@ -528,7 +532,7 @@
 					const dataArray = [
 						"19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut",
 						Buffer.from(buffer),
-						"image/png",
+						mediatype,
 						hashed,
 					];
 					console.log(`hashed: ${hashed}`);
