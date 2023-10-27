@@ -210,6 +210,59 @@
 
 			let imageDataURL;
 			let currentUtxos = [];
+			const capture = async () => {
+				const canvasResized = document.createElement("canvas");
+
+				if (uploadBtn.files.length > 0) {
+					// Check if a file has been uploaded
+					const file = uploadBtn.files[0];
+					const reader = new FileReader();
+					reader.readAsDataURL(file);
+					reader.onloadend = function () {
+						const base64String = reader.result;
+						previewPhotoEl.src = base64String;
+						imageDataURL = base64String;
+					};
+				} else {
+					// No file uploaded, so capture from webcam
+					canvasEl.width = videoEl.videoWidth;
+					canvasEl.height = videoEl.videoHeight;
+					canvasEl.getContext("2d").drawImage(videoEl, 0, 0);
+
+					// Resize the image
+					const maxWidth = 400;
+					const maxHeight = 300;
+					let width = canvasEl.width;
+					let height = canvasEl.height;
+
+					if (width > height) {
+						if (width > maxWidth) {
+							height *= maxWidth / width;
+							width = maxWidth;
+						}
+					} else {
+						if (height > maxHeight) {
+							width *= maxHeight / height;
+							height = maxHeight;
+						}
+					}
+
+					canvasResized.width = width;
+					canvasResized.height = height;
+					const ctx = canvasResized.getContext("2d");
+					ctx.drawImage(canvasEl, 0, 0, width, height);
+
+					// Convert to data URL with reduced quality
+					imageDataURL = canvasResized.toDataURL("image/png", 0.1);
+					previewPhotoEl.src = imageDataURL;
+				}
+			};
+
+			// onchange event file upload
+			uploadBtn.addEventListener("change", () => {
+				capture();
+			});
+			captureBtn.addEventListener("click", capture);
 
 			const getUtxos = async (address) => {
 				//whatsonchain
@@ -296,6 +349,16 @@
 				const address = localStorage.getItem("address");
 				const addressQrDiv = document.getElementById("addressQrDiv");
 				const addressCanvas = document.getElementById("addressQr");
+				navigator.mediaDevices
+					.getUserMedia({ video: true })
+					.then((stream) => {
+						videoEl.srcObject = stream;
+						videoEl.play();
+					})
+					.catch((error) => {
+						console.error("Error accessing the camera:", error);
+					});
+
 				const qr = new QRious({
 					element: addressCanvas,
 					value: address,
@@ -343,67 +406,7 @@
 				}
 			};
 			//camera
-			navigator.mediaDevices
-				.getUserMedia({ video: true })
-				.then((stream) => {
-					videoEl.srcObject = stream;
-					videoEl.play();
-				})
-				.catch((error) => {
-					console.error("Error accessing the camera:", error);
-				});
 
-			const capture = async () => {
-				// either take a photo from the camera or choose one from the user's device
-
-				if (uploadBtn.value) {
-					const file = uploadBtn.files[0];
-					const reader = new FileReader();
-					reader.readAsDataURL(file);
-					reader.onloadend = function () {
-						const base64String = reader.result;
-						previewPhotoEl.src = base64String;
-						imageDataURL = base64String;
-					};
-				} else {
-					canvasEl.width = videoEl.videoWidth;
-					canvasEl.height = videoEl.videoHeight;
-					canvasEl.getContext("2d").drawImage(videoEl, 0, 0);
-
-					// Resize the image
-					const maxWidth = 400;
-					const maxHeight = 300;
-					let width = canvasEl.width;
-					let height = canvasEl.height;
-
-					if (width > height) {
-						if (width > maxWidth) {
-							height *= maxWidth / width;
-							width = maxWidth;
-						}
-					} else {
-						if (height > maxHeight) {
-							width *= maxHeight / height;
-							height = maxHeight;
-						}
-					}
-
-					const canvasResized = document.createElement("canvas");
-					canvasResized.width = width;
-					canvasResized.height = height;
-
-					const ctx = canvasResized.getContext("2d");
-					ctx.drawImage(canvasEl, 0, 0, width, height);
-				}
-
-				// Convert to data URL with reduced quality
-				imageDataURL = canvasResized.toDataURL("image/png", 0.1);
-				previewPhotoEl.src = imageDataURL;
-			};
-			// onchange event file upload
-			uploadBtn.addEventListener("change", () => {
-				capture();
-			});
 			const createQrc = (txid) => {
 				const qr = new QRious({
 					element: txQrcEl,
