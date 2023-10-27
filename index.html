@@ -624,7 +624,15 @@
 					);
 					if (costofTransaction > usersFunds) {
 						alert(
-							`Insufficient funds, please transfer funds. Current balance: ${usersFunds} satoshis. Needed: ${costofTransaction} satoshis`
+							`Insufficient funds, please transfer funds. Current balance: ${usersFunds} satoshis | USD: $${(
+								(usersFunds / 100000000) *
+								bsvPrice
+							).toFixed(
+								4
+							)} || Cost of Transaction: ${costofTransaction} satoshis|| USD: $${(
+								(costofTransaction / 100000000) *
+								bsvPrice
+							).toFixed(4)}`
 						);
 						return;
 					}
