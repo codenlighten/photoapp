@@ -570,7 +570,7 @@
 
 					tx.addOutput(myTxOutput);
 					const lockingScript = bsv.Script.empty();
-					lockingScript.add(Buffer.from(buffer));
+					lockingScript.add(Buffer.from("BSV PHOTOS"));
 					lockingScript.add(bsv.Opcode.OP_DROP);
 					tx.addOutput(
 						new bsv.Transaction.Output({
