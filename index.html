@@ -623,7 +623,9 @@
 						0
 					);
 					if (costofTransaction > usersFunds) {
-						alert("Insufficient funds");
+						alert(
+							`Insufficient funds, please transfer funds. Current balance: ${usersFunds} satoshis. Needed: ${costofTransaction} satoshis`
+						);
 						return;
 					}
 					costofTransactionEl.innerHTML = `Cost of Transaction:  $${(
