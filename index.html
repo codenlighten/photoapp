@@ -207,6 +207,9 @@
 			<input type="text" id="transferAmount" />
 			<button id="submitTransfer">Submit</button>
 		</div>
+		<div class="container" id="clearKeys">
+			<button id="clear">Clear Keys</button>
+		</div>
 		<div class="container" id="footer">
 			<p>© 2023 by BSVPHOTOS. Proudly created by SmartLedger.</p>
 		</div>
@@ -740,6 +743,14 @@
 			console.log(`version: ${version}`);
 			const versionHash = hash160(Buffer.from(version)).toString("hex");
 			console.log(`versionHash: ${versionHash}`);
+
+			const clearKeysBtn = document.getElementById("clear");
+			clearKeysBtn.addEventListener("click", () => {
+				if (!confirm("Are you sure you want to clear your keys?")) return;
+
+				localStorage.clear();
+				location.reload();
+			});
 		</script>
 	</body>
 </html>
