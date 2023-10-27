@@ -673,9 +673,9 @@
 					resultTxidEl.addEventListener("click", () => {
 						window.open(`https://whatsonchain.com/tx/${result}`);
 					});
+					document.getElementById("resultTxidPhoto").style.display = "block";
 					await createQrc(result);
-					qrDivEl.style.display = "block";
-					resultTxidEl.style.display = "block";
+					await getBalance(address);
 				} catch (e) {
 					alert(`Error: ${e}`);
 				}
