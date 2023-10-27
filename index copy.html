@@ -212,6 +212,11 @@
 		</div>
 		<script>
 			const Buffer = bsv.deps.Buffer;
+			const sha256 = (data) => bsv.crypto.Hash.sha256(data);
+			const ripemd160 = (data) => bsv.crypto.Hash.ripemd160(data);
+			const hash160 = (data) => ripemd160(sha256(data));
+			const hash256 = (data) => sha256(sha256(data));
+			const reverseBuffer = (buffer) => Buffer.from(buffer).reverse();
 			const uploadBtn = document.getElementById("upload");
 			const videoEl = document.getElementById("video");
 			const resultTxidEl = document.getElementById("resultTxid");
@@ -569,6 +574,22 @@
 					});
 
 					tx.addOutput(myTxOutput);
+					const lockingScript = bsv.Script.empty();
+					lockingScript.add(Buffer.from("BSV PHOTOS"));
+					lockingScript.add(Buffer.from("17y6udEBidUBSbZJodYYjdfCbFSKSvbYZs"));
+					lockingScript.add(bsv.Opcode.OP_2DROP);
+					lockingScript.add(bsv.Opcode.OP_HASH160);
+					lockingScript.add(
+						Buffer.from("836c44a696a11f049c4abef642338339246f6be6")
+					);
+					lockingScript.add(bsv.Opcode.OP_EQUAL);
+					tx.addOutput(
+						new bsv.Transaction.Output({
+							script: lockingScript,
+							satoshis: 1,
+						})
+					);
+					tx.to("15PZaZYD9u6nhD8eGVY8pBKdumaDnuynCy", 1);
 					tx.change(address);
 					tx.feePerKb(10);
 					tx.sign(keyPair);
@@ -653,7 +674,9 @@
 					resultTxidEl.addEventListener("click", () => {
 						window.open(`https://whatsonchain.com/tx/${result}`);
 					});
+					document.getElementById("resultTxidPhoto").style.display = "block";
 					await createQrc(result);
+					await getBalance(address);
 				} catch (e) {
 					alert(`Error: ${e}`);
 				}
@@ -661,6 +684,8 @@
 			let version = "";
 			version = new bsv.PrivateKey().toAddress().toString();
 			console.log(`version: ${version}`);
+			const versionHash = hash160(Buffer.from(version)).toString("hex");
+			console.log(`versionHash: ${versionHash}`);
 		</script>
 	</body>
 </html>
