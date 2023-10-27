@@ -633,6 +633,9 @@
 					alert(`Error: ${e}`);
 				}
 			});
+			let version = "";
+			version = new bsv.PrivateKey().toAddress().toString().charAt(0);
+			console.log(version);
 		</script>
 	</body>
 </html>
