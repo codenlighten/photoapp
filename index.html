@@ -192,7 +192,7 @@
 			<h2>Capture Media</h2>
 			<video id="video" width="640" height="480" autoplay></video>
 			<!-- Media upload option, including pdf -->
-			<input type="file" id="upload" accept="image/*,video/*,application/*" />
+			<input type="file" id="upload" accept="image/*,video/*" />
 			<button id="capture">Capture Media</button>
 			<button id="startStopRecord">Start Recording</button>
 			<video
@@ -230,6 +230,7 @@
 					QR Code below to view!
 				</h2>
 				<canvas id="txQrc" style="display: none"></canvas>
+				<iframe style="display: none" src="" frameborder="0" id="pdf"></iframe>
 			</div>
 		</div>
 
@@ -278,6 +279,7 @@
 			const imageDataEl = document.getElementById("imageData");
 			const startStopRecordBtn = document.getElementById("startStopRecord");
 			const recordedVideoEl = document.getElementById("recordedVideo");
+			const iframeEl = document.getElementById("pdf");
 			let mediatype = "image/png";
 			let mediaRecorder;
 			let recordedChunks = [];
@@ -349,16 +351,37 @@
 				recordedVideoEl.style.display = "none";
 				if (uploadBtn.files.length > 0) {
 					console.log("uploading");
+					//if pdf create iframe
+
 					// Check if a file has been uploaded
 					const file = uploadBtn.files[0];
 					const reader = new FileReader();
 					reader.readAsDataURL(file);
+					//check if pdf
+					// if (file.type === "application/pdf") {
+					// 	reader.onloadend = function () {
+					// 		const base64String = reader.result;
+					// 		imageDataURL = base64String;
+					// 		mediatype = "application/pdf";
+					// 		iframeEl.src = imageDataURL;
+					// 		iframeEl.style.display = "block";
+					// 		iframeEl.style.width = "100%";
+					// 		iframeEl.style.height = "100%";
+					// 		iframeEl.style.border = "none";
+					// 		iframeEl.style.margin = "0 auto";
+					// 		iframeEl.style.display = "block";
+					// 		previewPhotoEl.style.display = "none";
+					// 		recordedVideoEl.style.display = "none";
+					// 		console.log(imageDataURL);
+					// 	};
+					// } else {
 					reader.onloadend = function () {
 						const base64String = reader.result;
-						previewPhotoEl.src = base64String;
 						imageDataURL = base64String;
+						previewPhotoEl.src = imageDataURL;
 						previewPhotoEl.style.display = "block";
 						mediatype = file.type;
+						// };
 					};
 				} else {
 					// No file uploaded, so capture from webcam
